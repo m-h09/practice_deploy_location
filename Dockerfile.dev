@@ -1,0 +1,20 @@
+FROM ruby:3.1.7
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# 必要なライブラリをインストール（PostgreSQL 用）
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential libpq-dev nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Gemfile と Gemfile.lock を先にコピーして bundle install
+COPY Gemfile Gemfile.lock ./
+
+RUN bundle install
+
+# その後にアプリ全体をコピー
+COPY . .
+
+# サーバー起動コマンド
+CMD ["bash", "-lc", "bundle exec rails server -b 0.0.0.0 -p 3000"]
